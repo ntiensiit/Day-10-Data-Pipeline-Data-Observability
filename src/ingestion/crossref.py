@@ -187,6 +187,8 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
     payload = response.json()
     write_json(settings.paths.raw_api_response, payload)
     records = parse_crossref_payload(payload)
+    if not records:
+        raise RuntimeError("Crossref returned no valid records after parsing. Check query, filter, or abstract availability.")
     write_json(settings.paths.raw_records_json, [dataclasses.asdict(r) for r in records])
     return records
 

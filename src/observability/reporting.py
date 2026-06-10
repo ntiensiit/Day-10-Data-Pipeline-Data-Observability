@@ -69,37 +69,88 @@ def generate_corruption_report(
     repaired_freshness: dict[str, Any],
 ) -> None:
     """Generate and write Markdown report comparing baseline, corrupted, and repaired pipelines."""
-    loss_hit_rate = baseline_metrics.get('retrieval_hit_rate', 0.0) - corrupted_metrics.get('retrieval_hit_rate', 0.0)
-    loss_f1 = baseline_metrics.get('mean_token_f1', 0.0) - corrupted_metrics.get('mean_token_f1', 0.0)
+    baseline_hit = baseline_metrics.get("retrieval_hit_rate", 0.0)
+    corrupted_hit = corrupted_metrics.get("retrieval_hit_rate", 0.0)
+    repaired_hit = repaired_metrics.get("retrieval_hit_rate", 0.0)
+    baseline_f1 = baseline_metrics.get("mean_token_f1", 0.0)
+    corrupted_f1 = corrupted_metrics.get("mean_token_f1", 0.0)
+    repaired_f1 = repaired_metrics.get("mean_token_f1", 0.0)
+    baseline_judge = baseline_metrics.get("judge_accuracy", 0.0)
+    corrupted_judge = corrupted_metrics.get("judge_accuracy", 0.0)
+    repaired_judge = repaired_metrics.get("judge_accuracy", 0.0)
 
-    if loss_hit_rate > 0 or loss_f1 > 0:
+    loss_hit_rate = baseline_hit - corrupted_hit
+    loss_f1 = baseline_f1 - corrupted_f1
+    loss_judge = baseline_judge - corrupted_judge
+    recovery_gain_hit = repaired_hit - corrupted_hit
+    recovery_gain_f1 = repaired_f1 - corrupted_f1
+    recovery_gain_judge = repaired_judge - corrupted_judge
+
+    corrupted_quality_passed = bool(corrupted_quality.get("passed"))
+    corrupted_freshness_ok = bool(corrupted_freshness.get("is_fresh"))
+    repaired_quality_passed = bool(repaired_quality.get("passed"))
+    repaired_freshness_ok = bool(repaired_freshness.get("is_fresh"))
+
+    corruption_notes = []
+    if loss_hit_rate > 0:
+        corruption_notes.append(f"Retrieval Hit Rate dropped by {loss_hit_rate:.4f}")
+    if loss_f1 > 0:
+        corruption_notes.append(f"Mean Token F1 dropped by {loss_f1:.4f}")
+    if loss_judge > 0:
+        corruption_notes.append(f"Judge Accuracy dropped by {loss_judge:.4f}")
+    if not corrupted_quality_passed:
+        corruption_notes.append("quality checks failed")
+    if not corrupted_freshness_ok:
+        corruption_notes.append("freshness report flagged stale rows")
+
+    if corruption_notes:
         corruption_interpretation = (
-            f"The injected data corruption degraded the pipeline's performance. "
-            f"Retrieval Hit Rate decreased by {loss_hit_rate:.4f} and Mean Token F1 decreased by {loss_f1:.4f}. "
-            f"Additionally, quality checks flagged failed rules due to missing fields, duplicates, or stale rows."
+            "The injected corruption produced observable impact: "
+            + "; ".join(corruption_notes)
+            + "."
         )
     else:
         corruption_interpretation = (
-            "The data corruption was successfully injected, introducing stale rows, duplicates, "
-            "and missing summaries, triggering multiple data quality alerts. Agent performance metrics "
-            "were also negatively impacted or flagged."
+            "The corruption was injected, but the current metrics and observability outputs do not show a strong degradation signal."
         )
 
-    recovery_gain_hit = repaired_metrics.get('retrieval_hit_rate', 0.0) - corrupted_metrics.get('retrieval_hit_rate', 0.0)
-    recovery_gain_f1 = repaired_metrics.get('mean_token_f1', 0.0) - corrupted_metrics.get('mean_token_f1', 0.0)
+    repair_notes = []
+    if recovery_gain_hit > 0:
+        repair_notes.append(f"Retrieval Hit Rate improved by +{recovery_gain_hit:.4f}")
+    if recovery_gain_f1 > 0:
+        repair_notes.append(f"Mean Token F1 improved by +{recovery_gain_f1:.4f}")
+    if recovery_gain_judge > 0:
+        repair_notes.append(f"Judge Accuracy improved by +{recovery_gain_judge:.4f}")
 
-    if recovery_gain_hit > 0 or recovery_gain_f1 > 0:
-        repair_interpretation = (
-            f"Re-running the ETL ingest pipeline repaired the data. "
-            f"Retrieval Hit Rate recovered by +{recovery_gain_hit:.4f} and Mean Token F1 recovered by +{recovery_gain_f1:.4f}. "
-            f"All quality checks and freshness alerts were successfully cleared."
-        )
+    if repaired_quality_passed and repaired_freshness_ok:
+        if repair_notes:
+            repair_interpretation = (
+                "Rebuilding from raw Crossref records recovered the dataset and the observability artifacts confirm it: "
+                + "; ".join(repair_notes)
+                + "; quality checks passed; freshness is clean."
+            )
+        else:
+            repair_interpretation = (
+                "Rebuilding from raw Crossref records produced a repaired dataset, and the observability artifacts confirm quality and freshness passed."
+            )
     else:
-        repair_interpretation = (
-            "Rebuilding the dataset directly from the raw Crossref source records recovered the index. "
-            "All data quality and freshness metrics returned to their baseline passing states, "
-            "and agent retrieval capabilities were restored."
-        )
+        status_bits = []
+        status_bits.append("quality passed" if repaired_quality_passed else "quality still fails")
+        status_bits.append("freshness is clean" if repaired_freshness_ok else "freshness still flags stale rows")
+        if repair_notes:
+            repair_interpretation = (
+                "Rebuilding from raw Crossref records improved the retrieval metrics, but the artifact state does not show full recovery: "
+                + "; ".join(repair_notes)
+                + "; "
+                + "; ".join(status_bits)
+                + "."
+            )
+        else:
+            repair_interpretation = (
+                "Rebuilding from raw Crossref records did not produce a measurable retrieval gain, and the artifact state does not show full recovery: "
+                + "; ".join(status_bits)
+                + "."
+            )
 
     md = f"""# Data Pipeline Corruption & Recovery Comparison Report
 

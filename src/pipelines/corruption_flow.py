@@ -21,10 +21,12 @@ def main() -> None:
 
     # 2. Check whether baseline cleaned data and metrics exist
     clean_exists = settings.paths.clean_csv.exists() and settings.paths.clean_json.exists()
+    testset_exists = settings.paths.eval_testset.exists()
     metrics_exists = settings.paths.baseline_metrics.exists()
+    raw_exists = settings.paths.raw_api_response.exists() and settings.paths.raw_records_json.exists()
 
     # 3. If baseline artifacts are missing, run phase1 first
-    if not clean_exists or not metrics_exists:
+    if not clean_exists or not metrics_exists or not testset_exists or not raw_exists:
         print("Baseline artifacts are missing. Running phase1 baseline flow first...")
         from pipelines.phase1 import main as run_phase1
         run_phase1()
@@ -32,10 +34,14 @@ def main() -> None:
     # 4. Load baseline cleaned dataset
     print("Loading baseline cleaned dataset...")
     df_clean = pd.read_csv(settings.paths.clean_csv)
+    if df_clean.empty:
+        raise RuntimeError("Baseline cleaned dataset is empty. Run phase1 and verify the cleaned corpus before corruption flow.")
 
     # 5. Create corrupted dataset using corrupt_clean_dataframe
     print("Creating corrupted dataset...")
     df_corrupted = corrupt_clean_dataframe(df_clean, settings.paths.corruption_log)
+    if df_corrupted.empty:
+        raise RuntimeError("Corrupted dataset is empty. Check the baseline cleaned data before building embeddings.")
 
     # 6. Save corrupted CSV and JSON
     print(f"Saving corrupted papers to {settings.paths.corrupted_clean_csv}...")
@@ -71,6 +77,8 @@ def main() -> None:
     print("Rebuilding/repairing dataset from raw records...")
     raw_records = load_raw_records(settings.paths.raw_records_json)
     df_repaired = build_clean_dataframe(raw_records, now_utc())
+    if df_repaired.empty:
+        raise RuntimeError("Repaired dataset is empty. Check Crossref source query, filter, or parsing rules.")
 
     # 11. Save repaired CSV and JSON
     print(f"Saving repaired papers to {settings.paths.repaired_clean_csv}...")

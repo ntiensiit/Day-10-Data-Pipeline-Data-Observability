@@ -30,6 +30,8 @@ def main() -> None:
     print("Building cleaned DataFrame...")
     run_date = now_utc()
     df = build_clean_dataframe(records, run_date)
+    if df.empty:
+        raise RuntimeError("Cleaned dataset is empty. Check Crossref source query, filter, or parsing rules.")
 
     # 4. Save cleaned CSV and JSON
     print(f"Saving cleaned papers to {settings.paths.clean_csv}...")
@@ -42,7 +44,7 @@ def main() -> None:
 
     # 6. Build evaluation test set if missing
     test_set_path = settings.paths.eval_testset
-    if settings.refresh_test_set or not test_set_path.exists():
+    if settings.refresh_source or settings.refresh_test_set or not test_set_path.exists():
         print("Generating evaluation test set...")
         build_test_set(df, test_set_path)
     else:

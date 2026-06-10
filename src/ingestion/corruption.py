@@ -71,11 +71,7 @@ def corrupt_clean_dataframe(df: pd.DataFrame, output_log_path: Path) -> pd.DataF
 
     df_corrupt["text_for_embedding"] = df_corrupt.apply(make_embedding_text, axis=1)
 
-    published_dates = pd.to_datetime(df_corrupt["published"], errors="coerce") if "published" in df_corrupt.columns else pd.Series(dtype="datetime64[ns]")
-    if not published_dates.dropna().empty:
-        run_date_only = published_dates.dropna().max().date()
-    else:
-        run_date_only = datetime.now(UTC).date()
+    run_date_only = datetime.now(UTC).date()
 
     def calc_age(pub_str: str) -> int:
         if not pub_str:
