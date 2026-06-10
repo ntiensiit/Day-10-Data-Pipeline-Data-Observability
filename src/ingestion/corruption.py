@@ -91,7 +91,7 @@ def corrupt_clean_dataframe(
     # 9. Write corruption log JSON
     log = {
         "run_id": run_id,
-        "created_at": datetime.now(UTC).isoformat() + "Z",
+        "created_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "dropped_ids": dropped_ids,
         "blanked_ids": blanked_ids,
         "noise_ids": noise_ids,

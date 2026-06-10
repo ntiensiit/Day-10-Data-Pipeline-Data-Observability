@@ -104,6 +104,7 @@ class LocalEmbeddingIndex:
         df: pd.DataFrame,
         settings: Settings,
         embeddings_output_path: Path | None = None,
+        run_id: str | None = None,
     ) -> "LocalEmbeddingIndex":
         collection_name = cls._derive_collection_name(settings, embeddings_output_path)
         documents = cls._build_documents(df)
@@ -129,16 +130,16 @@ class LocalEmbeddingIndex:
         )
 
         manifest_path = embeddings_output_path or settings.paths.embeddings_json
-        write_json(
-            manifest_path,
-            {
-                "backend": "chroma",
-                "embedding_model": settings.embedding_model,
-                "persist_path": str(persist_path),
-                "collection_name": collection_name,
-                "documents": documents,
-            },
-        )
+        manifest_data = {
+            "backend": "chroma",
+            "embedding_model": settings.embedding_model,
+            "persist_path": str(persist_path),
+            "collection_name": collection_name,
+            "documents": documents,
+        }
+        if run_id is not None:
+            manifest_data["run_id"] = run_id
+        write_json(manifest_path, manifest_data)
         return cls(
             settings=settings,
             collection_name=collection_name,

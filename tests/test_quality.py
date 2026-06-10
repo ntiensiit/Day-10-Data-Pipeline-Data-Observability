@@ -173,3 +173,29 @@ def test_build_freshness_report(clean_df, test_settings):
     report_stale = build_freshness_report(df_stale, test_settings, report_path)
     assert report_stale["is_fresh"] is False
     assert report_stale["stale_rows"] == 1
+
+
+def test_quality_reports_run_id(clean_df, test_settings):
+    report_name = "test_run_id_report"
+    run_id = "test_run"
+    report = run_data_quality_checks(clean_df, test_settings, report_name, run_id=run_id)
+    
+    assert "run_id" in report
+    assert "created_at" in report
+    assert report["run_id"] == run_id
+    
+    from core.utils import read_json
+    expected_path = test_settings.paths.quality_dir / f"{report_name}.json"
+    assert expected_path.exists()
+    saved_report = read_json(expected_path)
+    assert saved_report["run_id"] == run_id
+    
+    report_path = test_settings.paths.freshness_report
+    f_report = build_freshness_report(clean_df, test_settings, report_path, run_id=run_id)
+    
+    assert "run_id" in f_report
+    assert f_report["run_id"] == run_id
+    
+    assert report_path.exists()
+    saved_f_report = read_json(report_path)
+    assert saved_f_report["run_id"] == run_id

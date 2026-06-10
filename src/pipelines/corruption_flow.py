@@ -1,16 +1,6 @@
 from __future__ import annotations
 
 import pandas as pd
-from pathlib import Path
-
-from core.config import load_settings
-from core.utils import read_json, write_csv, write_json, now_utc
-from ingestion.corruption import corrupt_clean_dataframe
-from ingestion.crossref import load_raw_records
-from ingestion.cleaning import build_clean_dataframe
-
-import pandas as pd
-from pathlib import Path
 
 from core.config import load_settings
 from core.utils import read_json, write_csv, write_json, now_utc
@@ -62,7 +52,7 @@ def main() -> None:
     # 7. Build corrupted Chroma index
     print("Building corrupted Chroma index...")
     corrupted_index = LocalEmbeddingIndex.build(
-        df_corrupted, settings, settings.paths.corrupted_embeddings_json
+        df_corrupted, settings, settings.paths.corrupted_embeddings_json, run_id=run_id
     )
 
     # 8. Evaluate corrupted pipeline using existing test set
@@ -73,6 +63,7 @@ def main() -> None:
         test_set_path=settings.paths.eval_testset,
         metrics_output_path=settings.paths.corrupted_metrics,
         answers_output_path=settings.paths.corrupted_answers,
+        run_id=run_id,
     )
 
     # 9. Run corrupted quality checks and freshness report
@@ -99,7 +90,7 @@ def main() -> None:
     # 12. Build repaired Chroma index
     print("Building repaired Chroma index...")
     repaired_index = LocalEmbeddingIndex.build(
-        df_repaired, settings, settings.paths.repaired_embeddings_json
+        df_repaired, settings, settings.paths.repaired_embeddings_json, run_id=run_id
     )
 
     # 13. Evaluate repaired pipeline
@@ -110,6 +101,7 @@ def main() -> None:
         test_set_path=settings.paths.eval_testset,
         metrics_output_path=settings.paths.repaired_metrics,
         answers_output_path=settings.paths.repaired_answers,
+        run_id=run_id,
     )
 
     # 14. Run repaired quality checks and freshness report

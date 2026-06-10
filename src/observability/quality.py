@@ -8,6 +8,10 @@ from core.config import Settings
 from core.utils import write_json, now_utc
 
 
+def _utc_timestamp() -> str:
+    return now_utc().strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def run_data_quality_checks(
     df: pd.DataFrame,
     settings: Settings,
@@ -309,12 +313,13 @@ def run_data_quality_checks(
     report = {
         "report_name": report_name,
         "run_id": run_id,
-        "created_at": now_utc().isoformat() + "Z",
+        "created_at": _utc_timestamp(),
         "passed": passed,
         "summary": summary,
         "hard_checks": hard_checks,
         "warning_checks": warning_checks,
         "checks": checks,
+        "checks_note": "Legacy checks are kept for backward compatibility. Use hard_checks and warning_checks for pass/fail interpretation.",
     }
 
     report_path = settings.paths.quality_dir / f"{report_name}.json"
@@ -349,7 +354,7 @@ def build_freshness_report(
 
     report = {
         "run_id": run_id,
-        "created_at": now_utc().isoformat() + "Z",
+        "created_at": _utc_timestamp(),
         "latest_published": latest_published,
         "oldest_published": oldest_published,
         "stale_rows": stale_rows,

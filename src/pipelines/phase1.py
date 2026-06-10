@@ -1,13 +1,7 @@
 from __future__ import annotations
 
 from core.config import load_settings
-from core.utils import now_utc, write_csv, write_json, read_json
-from ingestion.crossref import fetch_source_records, load_raw_records
-from ingestion.cleaning import build_clean_dataframe
-from retrieval.index import LocalEmbeddingIndex
-
-from core.config import load_settings
-from core.utils import now_utc, write_csv, write_json, read_json
+from core.utils import now_utc, write_csv, write_json
 from ingestion.crossref import fetch_source_records, load_raw_records
 from ingestion.cleaning import build_clean_dataframe
 from retrieval.index import LocalEmbeddingIndex
@@ -47,7 +41,7 @@ def main() -> None:
 
     # 5. Build Chroma index
     print("Building local embedding index...")
-    index = LocalEmbeddingIndex.build(df, settings, settings.paths.embeddings_json)
+    index = LocalEmbeddingIndex.build(df, settings, settings.paths.embeddings_json, run_id=run_id)
 
     # 6. Build evaluation test set if missing
     test_set_path = settings.paths.eval_testset
@@ -65,6 +59,7 @@ def main() -> None:
         test_set_path=test_set_path,
         metrics_output_path=settings.paths.baseline_metrics,
         answers_output_path=settings.paths.baseline_answers,
+        run_id=run_id,
     )
 
     # 8. Run data quality checks and build freshness report

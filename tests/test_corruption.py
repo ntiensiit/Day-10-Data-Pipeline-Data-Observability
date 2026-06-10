@@ -47,6 +47,8 @@ def test_corrupt_clean_dataframe(sample_clean_df, tmp_path):
     assert log_path.exists()
     log = read_json(log_path)
     assert log["run_id"] == run_id
+    assert "created_at" in log
+    assert not log["created_at"].endswith("+00:00Z")
 
     # Test corruption log includes required fields
     required_log_keys = [

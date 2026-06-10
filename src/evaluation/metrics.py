@@ -106,6 +106,7 @@ def evaluate_pipeline(
     test_set_path,
     metrics_output_path,
     answers_output_path,
+    run_id: str | None = None,
 ) -> EvaluationBundle:
     test_set = read_json(test_set_path)
     answers: list[dict[str, Any]] = []
@@ -131,6 +132,7 @@ def evaluate_pipeline(
         )
 
     summary = {
+        "run_id": run_id,
         "samples": len(answers),
         "retrieval_hit_rate": mean(1.0 if item["retrieval_hit"] else 0.0 for item in answers),
         "mean_token_f1": mean(item["token_f1"] for item in answers),
