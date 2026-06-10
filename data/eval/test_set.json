@@ -1,0 +1,74 @@
+[
+  {
+    "id": "eval_q_0",
+    "question_type": "summary",
+    "question": "What is the summary of the paper 'Test Paper One'?",
+    "ground_truth": "First abstract with spacing.",
+    "ground_truth_doc_ids": [
+      "10.1234/a1"
+    ]
+  },
+  {
+    "id": "eval_q_1",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Test Paper One'?",
+    "ground_truth": "Ada Lovelace",
+    "ground_truth_doc_ids": [
+      "10.1234/a1"
+    ]
+  },
+  {
+    "id": "eval_q_2",
+    "question_type": "date",
+    "question": "When was the paper 'Test Paper One' published?",
+    "ground_truth": "",
+    "ground_truth_doc_ids": [
+      "10.1234/a1"
+    ]
+  },
+  {
+    "id": "eval_q_3",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Test Paper One' belong to?",
+    "ground_truth": "AI, RAG",
+    "ground_truth_doc_ids": [
+      "10.1234/a1"
+    ]
+  },
+  {
+    "id": "eval_q_4",
+    "question_type": "summary",
+    "question": "What is the summary of the paper 'Test Paper Two'?",
+    "ground_truth": "Second abstract & details.",
+    "ground_truth_doc_ids": [
+      "10.1234/a2"
+    ]
+  },
+  {
+    "id": "eval_q_5",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Test Paper Two'?",
+    "ground_truth": "Grace Hopper",
+    "ground_truth_doc_ids": [
+      "10.1234/a2"
+    ]
+  },
+  {
+    "id": "eval_q_6",
+    "question_type": "date",
+    "question": "When was the paper 'Test Paper Two' published?",
+    "ground_truth": "2023-07-08",
+    "ground_truth_doc_ids": [
+      "10.1234/a2"
+    ]
+  },
+  {
+    "id": "eval_q_7",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Test Paper Two' belong to?",
+    "ground_truth": "Data",
+    "ground_truth_doc_ids": [
+      "10.1234/a2"
+    ]
+  }
+]

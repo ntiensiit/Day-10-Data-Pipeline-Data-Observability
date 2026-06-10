@@ -44,22 +44,40 @@ class LocalEmbeddingIndex:
     def _build_documents(df: pd.DataFrame) -> list[dict[str, Any]]:
         records = df.to_dict(orient="records")
         documents: list[dict[str, Any]] = []
+
+        def clean_value(value: Any) -> str:
+            if value is None:
+                return ""
+            try:
+                if pd.isna(value):
+                    return ""
+            except Exception:
+                pass
+            return str(value)
+
         for index, row in enumerate(records):
+            title = clean_value(row["title"])
+            summary = clean_value(row["summary"])
+            authors_joined = clean_value(row["authors_joined"])
+            categories_joined = clean_value(row["categories_joined"])
+            published = clean_value(row["published"])
+            abs_url = clean_value(row["abs_url"])
+            pdf_url = clean_value(row["pdf_url"])
             documents.append(
                 {
                     "record_id": f"{row['paper_id']}::{index}",
-                    "paper_id": row["paper_id"],
-                    "title": row["title"],
-                    "content": row["text_for_embedding"],
+                    "paper_id": clean_value(row["paper_id"]),
+                    "title": title,
+                    "content": clean_value(row["text_for_embedding"]),
                     "metadata": {
-                        "paper_id": row["paper_id"],
-                        "title": row["title"],
-                        "published": row["published"],
-                        "authors_joined": row["authors_joined"],
-                        "categories_joined": row["categories_joined"],
-                        "summary": row["summary"],
-                        "abs_url": row["abs_url"],
-                        "pdf_url": row["pdf_url"],
+                        "paper_id": clean_value(row["paper_id"]),
+                        "title": title,
+                        "published": published,
+                        "authors_joined": authors_joined,
+                        "categories_joined": categories_joined,
+                        "summary": summary,
+                        "abs_url": abs_url,
+                        "pdf_url": pdf_url,
                     },
                 }
             )

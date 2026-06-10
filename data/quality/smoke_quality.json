@@ -1,0 +1,67 @@
+{
+  "report_name": "smoke_quality",
+  "passed": false,
+  "summary": {
+    "total_checks": 14,
+    "passed_checks": 12,
+    "failed_checks": 2
+  },
+  "checks": {
+    "row_count_above_zero": {
+      "passed": true,
+      "observed": 2
+    },
+    "paper_id_column_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "paper_id_has_no_nulls": {
+      "passed": true,
+      "observed": 0
+    },
+    "paper_id_is_unique": {
+      "passed": true,
+      "observed": 0
+    },
+    "title_column_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "title_has_no_nulls": {
+      "passed": true,
+      "observed": 0
+    },
+    "summary_column_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "summary_has_no_nulls": {
+      "passed": true,
+      "observed": 0
+    },
+    "text_for_embedding_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "text_for_embedding_has_no_nulls": {
+      "passed": true,
+      "observed": 0
+    },
+    "summary_chars_column_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "summary_chars_above_minimum": {
+      "passed": false,
+      "observed": 2
+    },
+    "age_days_column_exists": {
+      "passed": true,
+      "observed": true
+    },
+    "no_stale_rows": {
+      "passed": false,
+      "observed": 2
+    }
+  }
+}

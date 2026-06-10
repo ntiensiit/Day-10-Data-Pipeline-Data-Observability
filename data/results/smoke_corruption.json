@@ -1,0 +1,11 @@
+{
+  "dropped_ids": [
+    "10.1234/a2",
+    "10.1234/a1"
+  ],
+  "blanked_ids": [],
+  "noise_ids": [],
+  "truncated_ids": [],
+  "stale_ids": [],
+  "duplicate_ids": []
+}
