@@ -73,7 +73,7 @@ def main() -> None:
     print(f"Generating Phase 1 report at {settings.paths.baseline_report}...")
     source_summary = {
         "run_id": run_id,
-        "created_at": run_date.isoformat() + "Z",
+        "created_at": run_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source_api": settings.source_api,
         "source_query": settings.source_query,
         "source_filter": settings.source_filter,

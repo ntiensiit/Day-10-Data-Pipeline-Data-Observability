@@ -83,7 +83,7 @@
     "judge": {
       "score": 1,
       "correct": false,
-      "reasoning": "The model answer provides the date 2026-03-15, which does not align with the reference answer\u2019s publication date for 'Test Paper One'. Therefore the answer is materially incorrect."
+      "reasoning": "Fallback heuristic judge used because the LLM evaluator was unavailable."
     }
   },
   {

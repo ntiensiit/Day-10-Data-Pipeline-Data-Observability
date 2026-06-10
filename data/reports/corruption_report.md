@@ -1,5 +1,8 @@
 # Data Pipeline Corruption & Recovery Comparison Report
 
+- **Run ID:** 20260610T084000Z
+- **Created At:** 2026-06-10T08:40:36Z
+
 ## 1. Metrics Comparison
 | Metric | Baseline | Corrupted | Repaired |
 | --- | --- | --- | --- |
@@ -11,8 +14,9 @@
 ## 2. Observability Report
 | Metric / Check | Corrupted Pipeline | Repaired Pipeline |
 | --- | --- | --- |
-| **Data Quality Passed** | ❌ Failed | ✅ Passed |
-| **Failed Quality Checks** | 4 / 14 | 0 / 14 |
+| **Hard Quality Passed** | ❌ Failed | ✅ Passed |
+| **Failed Hard Checks** | 2 / 11 | 0 / 11 |
+| **Warnings Triggered** | 5 / 9 | 2 / 9 |
 | **Freshness (Is Fresh)** | ❌ Stale | ✅ Fresh |
 | **Stale Rows** | 1 / 22 | 0 / 23 |
 
@@ -26,7 +30,7 @@
 - **Repaired Freshness Report:** `data/quality/repaired_freshness_report.json`
 
 ## 4. Interpretation of Corruption Impact
-The data corruption was successfully injected, introducing stale rows, duplicates, and missing summaries, triggering multiple data quality alerts. Agent performance metrics were also negatively impacted or flagged.
+The injected corruption produced observable impact: hard quality checks failed; 5 warnings triggered; freshness report flagged stale rows.
 
 ## 5. Interpretation of Repair Recovery
-Rebuilding the dataset directly from the raw Crossref source records recovered the index. All data quality and freshness metrics returned to their baseline passing states, and agent retrieval capabilities were restored.
+Rebuilding from raw Crossref records produced a repaired dataset, and the observability artifacts confirm hard quality and freshness passed.

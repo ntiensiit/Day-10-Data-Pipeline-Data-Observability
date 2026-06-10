@@ -1,5 +1,8 @@
 # Phase 1: Baseline Data Pipeline & RAG Evaluation Report
 
+- **Run ID:** 20260610T083859Z
+- **Created At:** 2026-06-10T08:38:59Z
+
 ## 1. Source Summary
 - **Source API:** Crossref REST API
 - **Query:** `agentic retrieval augmented generation large language model`
@@ -16,11 +19,16 @@
 | **Mean Judge Score** | 1.0000 |
 
 ## 3. Data Quality Status
-- **Overall Quality Passed:** ✅ YES
+- **Quality Status:** ✅ Hard quality checks passed
+- **Failed Hard Checks:** 0
+- **Warnings Triggered:** 2
+- **Freshness Warning:** ✅ Freshness clean: no stale rows detected
 - **Quality Summary:**
-  - Total Checks: 14
-  - Passed: 14
-  - Failed: 0
+  - Total Hard Checks: 11
+  - Passed Hard Checks: 11
+  - Failed Hard Checks: 0
+  - Total Warning Checks: 9
+  - Triggered Warnings: 2
 
 ## 4. Freshness Status
 - **Is Fresh:** ✅ YES
