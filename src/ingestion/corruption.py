@@ -7,7 +7,11 @@ import pandas as pd
 from core.utils import write_json
 
 
-def corrupt_clean_dataframe(df: pd.DataFrame, output_log_path: Path) -> pd.DataFrame:
+def corrupt_clean_dataframe(
+    df: pd.DataFrame,
+    output_log_path: Path,
+    run_id: str | None = None,
+) -> pd.DataFrame:
     """Simulate data corruption on the cleaned DataFrame and write the details to a log file."""
     # 1. Copy the input DataFrame
     df_corrupt = df.copy()
@@ -86,6 +90,8 @@ def corrupt_clean_dataframe(df: pd.DataFrame, output_log_path: Path) -> pd.DataF
 
     # 9. Write corruption log JSON
     log = {
+        "run_id": run_id,
+        "created_at": datetime.now(UTC).isoformat() + "Z",
         "dropped_ids": dropped_ids,
         "blanked_ids": blanked_ids,
         "noise_ids": noise_ids,

@@ -8,6 +8,15 @@ from core.utils import read_json, write_csv, write_json, now_utc
 from ingestion.corruption import corrupt_clean_dataframe
 from ingestion.crossref import load_raw_records
 from ingestion.cleaning import build_clean_dataframe
+
+import pandas as pd
+from pathlib import Path
+
+from core.config import load_settings
+from core.utils import read_json, write_csv, write_json, now_utc
+from ingestion.corruption import corrupt_clean_dataframe
+from ingestion.crossref import load_raw_records
+from ingestion.cleaning import build_clean_dataframe
 from retrieval.index import LocalEmbeddingIndex
 from evaluation.metrics import evaluate_pipeline
 from observability.quality import run_data_quality_checks, build_freshness_report
@@ -18,6 +27,8 @@ def main() -> None:
     """Run the corruption simulation, evaluate the degraded pipeline, repair the dataset, and report comparisons."""
     # 1. Load settings
     settings = load_settings()
+    run_date = now_utc()
+    run_id = run_date.strftime("%Y%m%dT%H%M%SZ")
 
     # 2. Check whether baseline cleaned data and metrics exist
     clean_exists = settings.paths.clean_csv.exists() and settings.paths.clean_json.exists()
@@ -39,7 +50,7 @@ def main() -> None:
 
     # 5. Create corrupted dataset using corrupt_clean_dataframe
     print("Creating corrupted dataset...")
-    df_corrupted = corrupt_clean_dataframe(df_clean, settings.paths.corruption_log)
+    df_corrupted = corrupt_clean_dataframe(df_clean, settings.paths.corruption_log, run_id=run_id)
     if df_corrupted.empty:
         raise RuntimeError("Corrupted dataset is empty. Check the baseline cleaned data before building embeddings.")
 
@@ -66,11 +77,11 @@ def main() -> None:
 
     # 9. Run corrupted quality checks and freshness report
     print("Running data quality checks on corrupted dataset...")
-    corrupted_quality = run_data_quality_checks(df_corrupted, settings, "corrupted_quality")
+    corrupted_quality = run_data_quality_checks(df_corrupted, settings, "corrupted_quality", run_id=run_id)
 
     print("Building freshness report for corrupted dataset...")
     corrupted_freshness = build_freshness_report(
-        df_corrupted, settings, settings.paths.quality_dir / "corrupted_freshness_report.json"
+        df_corrupted, settings, settings.paths.quality_dir / "corrupted_freshness_report.json", run_id=run_id
     )
 
     # 10. Rebuild repaired cleaned data from raw records
@@ -103,11 +114,11 @@ def main() -> None:
 
     # 14. Run repaired quality checks and freshness report
     print("Running data quality checks on repaired dataset...")
-    repaired_quality = run_data_quality_checks(df_repaired, settings, "repaired_quality")
+    repaired_quality = run_data_quality_checks(df_repaired, settings, "repaired_quality", run_id=run_id)
 
     print("Building freshness report for repaired dataset...")
     repaired_freshness = build_freshness_report(
-        df_repaired, settings, settings.paths.quality_dir / "repaired_freshness_report.json"
+        df_repaired, settings, settings.paths.quality_dir / "repaired_freshness_report.json", run_id=run_id
     )
 
     # 15. Load baseline metrics for comparison report
@@ -124,6 +135,7 @@ def main() -> None:
         repaired_quality=repaired_quality,
         corrupted_freshness=corrupted_freshness,
         repaired_freshness=repaired_freshness,
+        run_id=run_id,
     )
 
     print("Corruption flow pipeline successfully completed!")

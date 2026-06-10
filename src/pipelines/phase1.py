@@ -5,6 +5,12 @@ from core.utils import now_utc, write_csv, write_json, read_json
 from ingestion.crossref import fetch_source_records, load_raw_records
 from ingestion.cleaning import build_clean_dataframe
 from retrieval.index import LocalEmbeddingIndex
+
+from core.config import load_settings
+from core.utils import now_utc, write_csv, write_json, read_json
+from ingestion.crossref import fetch_source_records, load_raw_records
+from ingestion.cleaning import build_clean_dataframe
+from retrieval.index import LocalEmbeddingIndex
 from evaluation.testset import build_test_set
 from evaluation.metrics import evaluate_pipeline
 from observability.quality import run_data_quality_checks, build_freshness_report
@@ -15,6 +21,8 @@ def main() -> None:
     """Run the end-to-end baseline data pipeline: fetch raw records, clean, index, evaluate, and report."""
     # 1. Load settings
     settings = load_settings()
+    run_date = now_utc()
+    run_id = run_date.strftime("%Y%m%dT%H%M%SZ")
 
     # 2. Load or fetch raw records
     raw_exists = settings.paths.raw_records_json.exists() and settings.paths.raw_api_response.exists()
@@ -28,7 +36,6 @@ def main() -> None:
 
     # 3. Build cleaned DataFrame
     print("Building cleaned DataFrame...")
-    run_date = now_utc()
     df = build_clean_dataframe(records, run_date)
     if df.empty:
         raise RuntimeError("Cleaned dataset is empty. Check Crossref source query, filter, or parsing rules.")
@@ -62,14 +69,16 @@ def main() -> None:
 
     # 8. Run data quality checks and build freshness report
     print("Running data quality checks...")
-    quality_report = run_data_quality_checks(df, settings, "baseline_quality")
+    quality_report = run_data_quality_checks(df, settings, "baseline_quality", run_id=run_id)
 
     print("Building freshness report...")
-    freshness_rep = build_freshness_report(df, settings, settings.paths.freshness_report)
+    freshness_rep = build_freshness_report(df, settings, settings.paths.freshness_report, run_id=run_id)
 
     # 9. Generate baseline Markdown report
     print(f"Generating Phase 1 report at {settings.paths.baseline_report}...")
     source_summary = {
+        "run_id": run_id,
+        "created_at": run_date.isoformat() + "Z",
         "source_api": settings.source_api,
         "source_query": settings.source_query,
         "source_filter": settings.source_filter,
